@@ -14,6 +14,6 @@ public class TestController {
 
     @RequestMapping("/hello")
     public String sayHello(){
-        return "改变后的样子";
+        return "hello jenkins.";
     }
 }
