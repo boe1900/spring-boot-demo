@@ -2,7 +2,12 @@ package com.bobo.controller;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bobo.util.DingTalkMsgTemplate;
+import com.bobo.util.MarkdownMessage;
+import com.bobo.util.MessageHelper;
+import com.xiaoleilu.hutool.http.HttpUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
+
+import static com.bobo.util.JiraMessageUtil.*;
 
 /**
  *
@@ -24,15 +34,18 @@ import org.apache.commons.io.IOUtils;
 public class TestController {
     public static final String JIRA_ISSUE_CREATED = "jira:issue_created";
 
+    public static final String JIRA_ISSUE_UPDATED = "jira:issue_updated";
+
+
 
     @PostMapping("/webHook")
     public String webhook(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        String data = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
-        String data = "{\"timestamp\":1535081414543,\"webhookEvent\":\"jira:issue_created\",\"issue_event_type_name\":\"issue_created\",\"user\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=huab\",\"name\":\"huab\",\"key\":\"huab\",\"emailAddress\":\"huab@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10351\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10351\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10351\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10351\"},\"displayName\":\"华博\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"issue\":{\"id\":\"11007\",\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issue/11007\",\"key\":\"RCBP-149\",\"fields\":{\"issuetype\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issuetype/10002\",\"id\":\"10002\",\"description\":\"A task that needs to be done.\",\"iconUrl\":\"http://mis.rongcard.com/jira/secure/viewavatar?size=xsmall&avatarId=10318&avatarType=issuetype\",\"name\":\"需求\",\"subtask\":false,\"avatarId\":10318},\"timespent\":null,\"project\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/project/10000\",\"id\":\"10000\",\"key\":\"RCBP\",\"name\":\"融卡平台软件\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/projectavatar?pid=10000&avatarId=10204\",\"24x24\":\"http://mis.rongcard.com/jira/secure/projectavatar?size=small&pid=10000&avatarId=10204\",\"16x16\":\"http://mis.rongcard.com/jira/secure/projectavatar?size=xsmall&pid=10000&avatarId=10204\",\"32x32\":\"http://mis.rongcard.com/jira/secure/projectavatar?size=medium&pid=10000&avatarId=10204\"}},\"fixVersions\":[],\"aggregatetimespent\":null,\"resolution\":null,\"customfield_10104\":null,\"customfield_10302\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=huab\",\"name\":\"huab\",\"key\":\"huab\",\"emailAddress\":\"huab@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10351\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10351\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10351\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10351\"},\"displayName\":\"华博\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"customfield_10500\":{\"spentTimeSeconds\":0,\"spentTime\":\"0 m\",\"approveStatus\":\"In Time\"},\"customfield_10105\":\"0|i0029b:\",\"customfield_10303\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=huab\",\"name\":\"huab\",\"key\":\"huab\",\"emailAddress\":\"huab@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10351\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10351\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10351\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10351\"},\"displayName\":\"华博\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"customfield_10700\":null,\"customfield_10503\":{\"spentTimeSeconds\":0,\"spentTime\":\"0 m\",\"approveStatus\":\"In Time\"},\"customfield_10701\":{\"spentTimeSeconds\":0,\"spentTime\":\"0 m\",\"approveStatus\":\"In Time\"},\"customfield_10504\":{\"spentTimeSeconds\":0,\"spentTime\":\"0 m\",\"approveStatus\":\"In Time\"},\"customfield_10505\":{\"spentTimeSeconds\":0,\"spentTime\":\"0 m\",\"approveStatus\":\"In Time\"},\"resolutiondate\":null,\"customfield_10507\":null,\"customfield_10508\":null,\"workratio\":-1,\"lastViewed\":null,\"watches\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issue/RCBP-149/watchers\",\"watchCount\":0,\"isWatching\":false},\"created\":\"2018-08-24T11:30:14.242+0800\",\"customfield_10340\":{\"id\":\"10343\",\"key\":\"PM-3\",\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issue/10343\",\"fields\":{\"summary\":\"融卡基础平台\",\"status\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/status/10215\",\"description\":\"\",\"iconUrl\":\"http://mis.rongcard.com/jira/images/icons/statuses/generic.png\",\"name\":\"已立项\",\"id\":\"10215\",\"statusCategory\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/statuscategory/4\",\"id\":4,\"key\":\"indeterminate\",\"colorName\":\"yellow\",\"name\":\"处理中\"}},\"priority\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/priority/1\",\"iconUrl\":\"http://mis.rongcard.com/jira/images/icons/priorities/highest.svg\",\"name\":\"P1\",\"id\":\"1\"},\"issuetype\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issuetype/10102\",\"id\":\"10102\",\"description\":\"\",\"iconUrl\":\"http://mis.rongcard.com/jira/secure/viewavatar?size=xsmall&avatarId=10315&avatarType=issuetype\",\"name\":\"项目立项\",\"subtask\":false,\"avatarId\":10315}}},\"priority\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/priority/3\",\"iconUrl\":\"http://mis.rongcard.com/jira/images/icons/priorities/medium.svg\",\"name\":\"P3\",\"id\":\"3\"},\"customfield_10100\":null,\"customfield_10300\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=huab\",\"name\":\"huab\",\"key\":\"huab\",\"emailAddress\":\"huab@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10351\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10351\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10351\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10351\"},\"displayName\":\"华博\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"labels\":[],\"customfield_10301\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=shuhy\",\"name\":\"shuhy\",\"key\":\"shuhy\",\"emailAddress\":\"shuhy@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10346\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10346\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10346\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10346\"},\"displayName\":\"舒海洋\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"timeestimate\":null,\"aggregatetimeoriginalestimate\":null,\"versions\":[],\"issuelinks\":[{\"id\":\"10807\",\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issueLink/10807\",\"type\":{\"id\":\"10400\",\"name\":\"所属项目\",\"inward\":\"所属项目\",\"outward\":\"项目需求\",\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issueLinkType/10400\"},\"inwardIssue\":{\"id\":\"10343\",\"key\":\"PM-3\",\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issue/10343\",\"fields\":{\"summary\":\"融卡基础平台\",\"status\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/status/10215\",\"description\":\"\",\"iconUrl\":\"http://mis.rongcard.com/jira/images/icons/statuses/generic.png\",\"name\":\"已立项\",\"id\":\"10215\",\"statusCategory\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/statuscategory/4\",\"id\":4,\"key\":\"indeterminate\",\"colorName\":\"yellow\",\"name\":\"处理中\"}},\"priority\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/priority/1\",\"iconUrl\":\"http://mis.rongcard.com/jira/images/icons/priorities/highest.svg\",\"name\":\"P1\",\"id\":\"1\"},\"issuetype\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issuetype/10102\",\"id\":\"10102\",\"description\":\"\",\"iconUrl\":\"http://mis.rongcard.com/jira/secure/viewavatar?size=xsmall&avatarId=10315&avatarType=issuetype\",\"name\":\"项目立项\",\"subtask\":false,\"avatarId\":10315}}}}],\"assignee\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=huab\",\"name\":\"huab\",\"key\":\"huab\",\"emailAddress\":\"huab@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10351\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10351\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10351\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10351\"},\"displayName\":\"华博\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"updated\":\"2018-08-24T11:30:14.242+0800\",\"status\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/status/10200\",\"description\":\"需求或功能草稿\",\"iconUrl\":\"http://mis.rongcard.com/jira/images/icons/statuses/generic.png\",\"name\":\"草稿\",\"id\":\"10200\",\"statusCategory\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/statuscategory/2\",\"id\":2,\"key\":\"new\",\"colorName\":\"blue-gray\",\"name\":\"待办\"}},\"components\":[{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/component/10103\",\"id\":\"10103\",\"name\":\"OA后台\"}],\"timeoriginalestimate\":null,\"description\":\"测试webhook\",\"timetracking\":{},\"customfield_10334\":null,\"customfield_10600\":null,\"customfield_10601\":{\"spentTimeSeconds\":0,\"spentTime\":\"0 m\",\"approveStatus\":\"In Time\"},\"customfield_10602\":\"职责1：输出项目的技术方案\\r\\n  1）根据技术需求，梳理出项目的技术方案框架，流程定义，接口定义\\r\\n职责2：研发任务分配和安排\\r\\n  1）根据技术实现方案，梳理出WBS任务分解列表\\r\\n  2）根据技术实现方案，合理安排对应的开发人员\\r\\n  3）根据技术实现方案，合理安排对应的开发计划\\r\\n职责3：难点问题攻关讨论\\r\\n职责4：技术沟通协调和推进\\r\\n  1）客户/内部资源的协调与推进\\r\\n  2）技术节点功能的确定与推进\\r\\n  3）项目需求变更的沟通与推进\\r\\n  4）任务模块的进度沟通与跟进\\r\\n职责5：项目验收的基线确认\\r\\n  1）项目研发代码定版基线：\\r\\n     项目业务逻辑源代码（APP代码/平台代码/固件代码/COS代码/PCB设计）  \\r\\n     项目产线工具源代码\\r\\n     项目测试脚本源代码\\r\\n     项目测试工具源代码\\r\\n  2）项目研发文档定版基线：\\r\\n     软件相关资料（项目需求文档/软件设计文档/软件测试文档/软件产品手册/软件操作手册）  \\r\\n     项目管理资料（项目立项文档/项目进度计划表/项目会议纪要/开发总结报告）      \\r\\n  3）项目相关对接资料\\r\\n     芯片类相关资料（芯片的datasheet资料/芯片的函数接口文档/芯片的下载工具及文档）  \\r\\n     平台类相关资料（第三方平台接入流程说明/第三方平台接入报文说明）\",\"attachment\":[],\"aggregatetimeestimate\":null,\"customfield_10605\":\"最后1天\",\"summary\":\"测试\",\"creator\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=huab\",\"name\":\"huab\",\"key\":\"huab\",\"emailAddress\":\"huab@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10351\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10351\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10351\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10351\"},\"displayName\":\"华博\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"subtasks\":[],\"reporter\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=huab\",\"name\":\"huab\",\"key\":\"huab\",\"emailAddress\":\"huab@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10351\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10351\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10351\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10351\"},\"displayName\":\"华博\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"customfield_10000\":\"{summaryBean=com.atlassian.jira.plugin.devstatus.rest.SummaryBean@9588947[summary={pullrequest=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@49c7b1b6[overall=com.atlassian.jira.plugin.devstatus.summary.beans.PullRequestOverallBean@36342fe8[stateCount=0,state=OPEN,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], build=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@75fdfe1a[overall=com.atlassian.jira.plugin.devstatus.summary.beans.BuildOverallBean@38224353[failedBuildCount=0,successfulBuildCount=0,unknownBuildCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], review=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@4c1c0fe0[overall=com.atlassian.jira.plugin.devstatus.summary.beans.ReviewsOverallBean@5b4022e4[stateCount=0,state=<null>,dueDate=<null>,overDue=false,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], deployment-environment=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@41570ab8[overall=com.atlassian.jira.plugin.devstatus.summary.beans.DeploymentOverallBean@6b45e11a[topEnvironments=[],showProjects=false,successfulCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], repository=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@478a809d[overall=com.atlassian.jira.plugin.devstatus.summary.beans.CommitOverallBean@1d87cd8a[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], branch=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@647c1648[overall=com.atlassian.jira.plugin.devstatus.summary.beans.BranchOverallBean@207566ec[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}]},errors=[],configErrors=[]], devSummaryJson={\\\"cachedValue\\\":{\\\"errors\\\":[],\\\"configErrors\\\":[],\\\"summary\\\":{\\\"pullrequest\\\":{\\\"overall\\\":{\\\"count\\\":0,\\\"lastUpdated\\\":null,\\\"stateCount\\\":0,\\\"state\\\":\\\"OPEN\\\",\\\"open\\\":true},\\\"byInstanceType\\\":{}},\\\"build\\\":{\\\"overall\\\":{\\\"count\\\":0,\\\"lastUpdated\\\":null,\\\"failedBuildCount\\\":0,\\\"successfulBuildCount\\\":0,\\\"unknownBuildCount\\\":0},\\\"byInstanceType\\\":{}},\\\"review\\\":{\\\"overall\\\":{\\\"count\\\":0,\\\"lastUpdated\\\":null,\\\"stateCount\\\":0,\\\"state\\\":null,\\\"dueDate\\\":null,\\\"overDue\\\":false,\\\"completed\\\":false},\\\"byInstanceType\\\":{}},\\\"deployment-environment\\\":{\\\"overall\\\":{\\\"count\\\":0,\\\"lastUpdated\\\":null,\\\"topEnvironments\\\":[],\\\"showProjects\\\":false,\\\"successfulCount\\\":0},\\\"byInstanceType\\\":{}},\\\"repository\\\":{\\\"overall\\\":{\\\"count\\\":0,\\\"lastUpdated\\\":null},\\\"byInstanceType\\\":{}},\\\"branch\\\":{\\\"overall\\\":{\\\"count\\\":0,\\\"lastUpdated\\\":null},\\\"byInstanceType\\\":{}}}},\\\"isStale\\\":false}}\",\"aggregateprogress\":{\"progress\":0,\"total\":0},\"customfield_10202\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/user?username=huab\",\"name\":\"huab\",\"key\":\"huab\",\"emailAddress\":\"huab@rongcard.com\",\"avatarUrls\":{\"48x48\":\"http://mis.rongcard.com/jira/secure/useravatar?avatarId=10351\",\"24x24\":\"http://mis.rongcard.com/jira/secure/useravatar?size=small&avatarId=10351\",\"16x16\":\"http://mis.rongcard.com/jira/secure/useravatar?size=xsmall&avatarId=10351\",\"32x32\":\"http://mis.rongcard.com/jira/secure/useravatar?size=medium&avatarId=10351\"},\"displayName\":\"华博\",\"active\":true,\"timeZone\":\"Asia/Shanghai\"},\"environment\":null,\"duedate\":\"2018-08-24\",\"progress\":{\"progress\":0,\"total\":0},\"comment\":{\"comments\":[],\"maxResults\":0,\"total\":0,\"startAt\":0},\"votes\":{\"self\":\"http://mis.rongcard.com/jira/rest/api/2/issue/RCBP-149/votes\",\"votes\":0,\"hasVoted\":false},\"worklog\":{\"startAt\":0,\"maxResults\":20,\"total\":0,\"worklogs\":[]}}},\"changelog\":{\"id\":\"19079\",\"items\":[{\"field\":\"Link\",\"fieldtype\":\"jira\",\"from\":null,\"fromString\":null,\"to\":\"PM-3\",\"toString\":\"This issue 所属项目 PM-3\"}]}}\n";
+        String data = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
         if(!StringUtils.isEmpty(data)){
             JSONObject dataObject = JSON.parseObject(data);
             String webhookEvent = dataObject.getString("webhookEvent");
-            if(JIRA_ISSUE_CREATED.equals(webhookEvent)){
+            if(JIRA_ISSUE_CREATED.equals(webhookEvent) || JIRA_ISSUE_UPDATED.equals(webhookEvent)){
+                String issueEventTypeName = dataObject.getString("issue_event_type_name");
                 JSONObject issueObject = dataObject.getJSONObject("issue");
                 JSONObject issueFields = issueObject.getJSONObject("fields");
                 //创建人
@@ -40,6 +53,7 @@ public class TestController {
                 String creatorName = creatorObject.getString("displayName");
                 //issue名称
                 String issueName = issueObject.getString("key");
+                String issueUrl = BASE_URL+"/"+issueName;
                 //issue类型
                 JSONObject issueTypeObject = issueFields.getJSONObject("issuetype");
                 String issueType = issueTypeObject.getString("name");
@@ -60,25 +74,206 @@ public class TestController {
                 //需求内容
                 String description = issueFields.getString("description");
 
-                //上线审核人
-                String s = issueFields.getString("customfield_10301");
+                //需求提出人
+                String requestMan = issueFields.getJSONObject("customfield_10202") == null ? "" : issueFields.getJSONObject("customfield_10202").getString("displayName");
 
+                //开发负责人
+                String developer = issueFields.getJSONObject("customfield_10300") == null ? "" : issueFields.getJSONObject("customfield_10300").getString("displayName");
+
+                //上线审核人
+                String check = issueFields.getJSONObject("customfield_10301")==null ? "" : issueFields.getJSONObject("customfield_10301").getString("displayName");
+
+                //测试负责人
+                String test =  issueFields.getJSONObject("customfield_10302") == null ? "": issueFields.getJSONObject("customfield_10302").getString("displayName");
+
+                //测试干系人customfield_10700
+                JSONArray testLinks = issueFields.getJSONArray("customfield_10700");
+
+                //产品负责人customfield_10303
+                String productOwner = issueFields.getJSONObject("customfield_10303") == null ? "" : issueFields.getJSONObject("customfield_10303").getString("displayName");
                 //经办人
                 JSONObject assigneeObject = issueFields.getJSONObject("assignee");
                 String assignee = assigneeObject.getString("displayName");
 
+                String roles = getRoles(assignee,requestMan,developer,check,test,productOwner,testLinks);
 
-                System.out.println(creatorName+"创建"+issueType+issueName+":"+summary+
-                        ",到期日："+dueDate+",剩余工期："+remainTime+",优先级："+priorityName+",经办人："+assignee+",需求内容："+description);
+                //操作人
+                String userName = dataObject.getJSONObject("user").getString("displayName");
 
+                //获取评论内容
+                JSONObject commentObject = dataObject.getJSONObject("comment");
+                String commentUser = "";
+                String commentBody = "";
+                if(commentObject != null){
+                    commentUser = commentObject.getJSONObject("author").getString("displayName");
+                    commentBody = commentObject.getString("body");
+                }
+                String markdownText = "";
+
+
+                if("issue_created".equals(issueEventTypeName)){
+                    markdownText = CREATE_TEMPLATE.replaceAll("#creatorName",creatorName)
+                            .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
+                            .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
+                            .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
+                            .replaceAll("#assignee","@"+assignee).replaceAll("#description",description)
+                            .replaceAll("#productOwner","@"+productOwner).replaceAll("#roles",roles);
+                }else if("issue_commented".equals(issueEventTypeName)){
+                    //添加评论
+                    markdownText = ADD_COMMENT_TEMPLATE.replaceAll("#commentName",commentUser)
+                            .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
+                            .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
+                            .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
+                            .replaceAll("#assignee","@"+assignee).replaceAll("#description",description)
+                            .replaceAll("#productOwner","@"+productOwner).replaceAll("#commentContent",commentBody)
+                            .replaceAll("#roles",roles);
+                }else if("issue_updated".equals(issueEventTypeName)){
+                    //修改需求
+                    JSONObject changelogObject = dataObject.getJSONObject("changelog");
+                    JSONArray items = changelogObject.getJSONArray("items");
+                    String updateContent = "";
+                    for(int i=0;i<items.size();i++){
+                        JSONObject item = items.getJSONObject(i);
+                        String field = item.getString("field");
+                        String fieldName = getFiledName(field);
+                        String fromString = item.getString("fromString");
+                        if(fromString != null && fromString.length()>15){
+                            fromString = fromString.substring(0,12)+"...";
+                        }
+                        String from = item.getString("from");
+                        String toString = item.getString("toString");
+                        if(toString != null && toString.length()>15){
+                            toString = toString.substring(0,12)+"...";
+                        }
+                        String to = item.getString("to");
+                        if(!StringUtils.isEmpty(fieldName)){
+                            updateContent += fieldName+":";
+                        }
+                        updateContent += (StringUtils.isEmpty(fromString) ? "空" : fromString+(StringUtils.isEmpty(from) ? "" : "["+from+"]"));
+                        updateContent += ">";
+                        updateContent += (StringUtils.isEmpty(toString) ? "空" : toString+(StringUtils.isEmpty(to) ? "" : "["+to+"]"));
+                        updateContent+="  \n";
+                    }
+                    markdownText = ISSUE_UPDATED_TEMPLATE.replaceAll("#updateName",userName)
+                            .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
+                            .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
+                            .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
+                            .replaceAll("#assignee","@"+assignee).replaceAll("#description",description)
+                            .replaceAll("#productOwner","@"+productOwner).replaceAll("#updateContent",updateContent)
+                            .replaceAll("#roles",roles);
+
+                }else if("issue_generic".equals(issueEventTypeName)){
+                    JSONObject changelogObject = dataObject.getJSONObject("changelog");
+                    JSONArray items = changelogObject.getJSONArray("items");
+                    String fromStatus = "";
+                    String toStatus = "";
+                    for(int i=0;i<items.size();i++){
+                        JSONObject item = items.getJSONObject(i);
+                        String field = item.getString("field");
+                        String fieldName = getFiledName(field);
+                        String fromString = item.getString("fromString");
+                        String from = item.getString("from");
+                        String toString = item.getString("toString");
+                        String to = item.getString("to");
+                        if("status".equals(field)){
+                            fromStatus = fromString;
+                            toStatus = toString;
+                            break;
+                        }
+                    }
+                    markdownText = ISSUE_GENERIC_TEMPLATE.replaceAll("#userName",userName)
+                            .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
+                            .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
+                            .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
+                            .replaceAll("#assignee","@"+assignee).replaceAll("#description",description)
+                            .replaceAll("#productOwner","@"+productOwner).replaceAll("#commentContent",commentBody)
+                            .replaceAll("#fromStatus",fromStatus).replaceAll("#toStatus",toStatus)
+                            .replaceAll("#roles",roles);;
+                }else if("issue_assigned".equals(issueEventTypeName)){
+                    //分配需求
+                    markdownText = ISSUE_ASSIGNED_TEMPLATE.replaceAll("#userName",userName)
+                            .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
+                            .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
+                            .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
+                            .replaceAll("#assignee",assignee).replaceAll("#description",description)
+                            .replaceAll("#productOwner","@"+productOwner).replaceAll("#commentContent",commentBody)
+                            .replaceAll("#roles",roles);;
+                }
+                MarkdownMessage markdownMessage = new MarkdownMessage();
+                MarkdownMessage.TextBean textBean = new MarkdownMessage.TextBean();
+                textBean.setTitle("jira:[分享]");
+                textBean.setText(markdownText);
+                markdownMessage.setMarkdown(textBean);
+                MessageHelper.sendCorpMsg("6ba0b4d140473a1e9c09857cdbdd9da0",markdownMessage,"0240461122682444");
             }
-
-
         }
-
-
 
         System.out.println("data:["+data+"]");
         return "webHook success";
     }
+
+    private String getRoles(String assignee, String requestMan, String developer, String check, String test, String productOwner, JSONArray testLinks) {
+        List<String> roles = new ArrayList<>();
+        if(assignee.equals(requestMan)){
+            roles.add("需求提出人");
+        }
+        if(assignee.equals(developer)){
+            roles.add("开发负责人");
+        }
+        if(assignee.equals(check)){
+            roles.add("上线审核人");
+        }
+        if(assignee.equals(test)){
+            roles.add("测试负责人");
+        }
+        if(assignee.equals(productOwner)){
+            roles.add("产品/项目负责人");
+        }
+        if(testLinks != null && testLinks.size()>0){
+            for(int i=0 ;i<testLinks.size();i++){
+                JSONObject object = testLinks.getJSONObject(i);
+                if(assignee.equals(object.getString("displayName"))){
+                    roles.add("测试干系人");
+                    break;
+                }
+            }
+        }
+        return String.join(",",roles);
+    }
+
+    private String getFiledName(String field) {
+        switch (field){
+            case "Component":
+                return "模块";
+            case "description":
+                return "描述";
+            case "labels":
+                return "标签";
+            case "priority":
+                return "优先级";
+            default:
+                return "";
+        }
+    }
+
+    private void createIssue(String creatorName, String issueName, String issueUrl, String issueType, String dueDate, String remainTime, String priorityName, String statusName, String description, String productOwner, String assignee) {
+        String markdownText = CREATE_TEMPLATE.replaceAll("#creatorName",creatorName)
+                .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
+                .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
+                .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
+                .replaceAll("#assignee","@"+assignee).replaceAll("#description",description)
+                .replaceAll("#productOwner","@"+productOwner);
+//                System.out.println(markdownText);
+        MarkdownMessage markdownMessage = new MarkdownMessage();
+        MarkdownMessage.TextBean textBean = new MarkdownMessage.TextBean();
+        textBean.setTitle("jira:[分享]");
+        textBean.setText(markdownText);
+        markdownMessage.setMarkdown(textBean);
+        MessageHelper.sendCorpMsg("f62c0ee76fa63ff39ff382f2219ee416",markdownMessage,"0240461122682444");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(CREATE_TEMPLATE);
+    }
+
 }
