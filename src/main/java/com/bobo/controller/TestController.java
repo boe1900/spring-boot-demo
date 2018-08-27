@@ -112,7 +112,7 @@ public class TestController {
 
 
                 if("issue_created".equals(issueEventTypeName)){
-                    markdownText = CREATE_TEMPLATE.replaceAll("#creatorName",creatorName)
+                    markdownText = CREATE_TEMPLATE.replaceAll("#creatorName",creatorName).replaceAll("#summary",summary)
                             .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
                             .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
                             .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
@@ -120,7 +120,7 @@ public class TestController {
                             .replaceAll("#productOwner","@"+productOwner).replaceAll("#roles",roles);
                 }else if("issue_commented".equals(issueEventTypeName)){
                     //添加评论
-                    markdownText = ADD_COMMENT_TEMPLATE.replaceAll("#commentName",commentUser)
+                    markdownText = ADD_COMMENT_TEMPLATE.replaceAll("#commentName",commentUser).replaceAll("#summary",summary)
                             .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
                             .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
                             .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
@@ -149,12 +149,12 @@ public class TestController {
                         if(!StringUtils.isEmpty(fieldName)){
                             updateContent += fieldName+":";
                         }
-                        updateContent += (StringUtils.isEmpty(fromString) ? "空" : fromString+(StringUtils.isEmpty(from) ? "" : "["+from+"]"));
+                        updateContent += (StringUtils.isEmpty(fromString) ? "空" : fromString);
                         updateContent += ">";
-                        updateContent += (StringUtils.isEmpty(toString) ? "空" : toString+(StringUtils.isEmpty(to) ? "" : "["+to+"]"));
+                        updateContent += (StringUtils.isEmpty(toString) ? "空" : toString);
                         updateContent+="  \n";
                     }
-                    markdownText = ISSUE_UPDATED_TEMPLATE.replaceAll("#updateName",userName)
+                    markdownText = ISSUE_UPDATED_TEMPLATE.replaceAll("#updateName",userName).replaceAll("#summary",summary)
                             .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
                             .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
                             .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
@@ -170,18 +170,15 @@ public class TestController {
                     for(int i=0;i<items.size();i++){
                         JSONObject item = items.getJSONObject(i);
                         String field = item.getString("field");
-                        String fieldName = getFiledName(field);
                         String fromString = item.getString("fromString");
-                        String from = item.getString("from");
                         String toString = item.getString("toString");
-                        String to = item.getString("to");
                         if("status".equals(field)){
                             fromStatus = fromString;
                             toStatus = toString;
                             break;
                         }
                     }
-                    markdownText = ISSUE_GENERIC_TEMPLATE.replaceAll("#userName",userName)
+                    markdownText = ISSUE_GENERIC_TEMPLATE.replaceAll("#userName",userName).replaceAll("#summary",summary)
                             .replaceAll("#issueName",issueName).replaceAll("#issueType",issueType).replaceAll("#issueUrl",issueUrl)
                             .replaceAll("#duedate",dueDate).replaceAll("#remaintime",remainTime)
                             .replaceAll("#statusName",statusName).replaceAll("#priorityName",priorityName)
@@ -251,6 +248,14 @@ public class TestController {
                 return "标签";
             case "priority":
                 return "优先级";
+            case "status":
+                return "状态";
+            case "assignee":
+                return "经办人";
+            case "Attachment":
+                return "附件";
+            case "duedate":
+                return "到期日";
             default:
                 return "";
         }
