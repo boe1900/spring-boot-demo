@@ -1,0 +1,13 @@
+version: '2'
+services:
+  opms:
+    restart: always
+    image: registry-vpc.cn-hangzhou.aliyuncs.com/rongcard/jmeter-test-platform
+    volumes:
+      - /var/testcases:/var/testcases
+    extra_hosts:
+    - "mysql:172.16.76.130"
+    - "redis:172.16.16.187"
+#    entrypoint: /wait-for-it.sh upms:4000 --
+    command: java -server -Xms64m -Xmx1024m -Djava.security.egd=file:/dev/./urandom -Duser.timezone=GMT+08 -jar jmeter-test-platform.jar --spring.profiles.active=prd
+

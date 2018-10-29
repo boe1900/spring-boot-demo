@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.bobo</groupId>
-	<artifactId>spring-boot-demo</artifactId>
+	<groupId>io.renren</groupId>
+	<artifactId>jmeter-test-platform</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -233,7 +233,6 @@
 			<plugin>
 				<groupId>com.spotify</groupId>
 				<artifactId>docker-maven-plugin</artifactId>
-				<version>0.4.14</version>
 				<configuration>
 					<serverId>aliyun-docker-registry</serverId>
 					<imageName>${docker.image.prefix}/${project.artifactId}</imageName>
@@ -247,7 +246,7 @@
 					<env>
 						<JAVA_OPTS>-Xmx128m -Djava.security.egd=file:/dev/./urandom -Duser.timezone=GMT+08</JAVA_OPTS>
 					</env>
-					<entryPoint>exec java $JAVA_OPTS -jar ${project.build.finalName}.jar --spring.profiles.active=dev</entryPoint>
+					<entryPoint>exec java $JAVA_OPTS -jar ${project.build.finalName}.jar --spring.profiles.active=prd</entryPoint>
 					<resources>
 						<resource>
 							<targetPath></targetPath>

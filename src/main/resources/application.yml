@@ -9,9 +9,9 @@ server:
 #    context-path: /renren-fast
 
 spring:
-    # 环境 dev|test|pro|系统默认使用dev
+    # 环境 dev|test|prd|系统默认使用dev
     profiles:
-        active: dev
+        active: prd
     # jackson时间格式化
     jackson:
         time-zone: GMT+8
